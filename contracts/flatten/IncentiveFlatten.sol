@@ -1,6 +1,5 @@
-
+// Sources flattened with hardhat v2.12.3 https://hardhat.org
 // SPDX-License-Identifier: MIT
-
 
 // File @openzeppelin/contracts/utils/Context.sol@v4.8.0
 
@@ -635,7 +634,7 @@ modifier onlyManager() {
         _;
     }
     
-    constructor(address _incentiveManager) ERC20("IncentiveToken","IT") {
+    constructor() ERC20("IncentiveToken","IT") {
     }
 
     function mintReward(uint _amount) public onlyManager{
@@ -1312,7 +1311,7 @@ contract IncentiveManager is Ownable{
     address public admin;
 
     /// @dev 30.4368 days to take account for leap years.
-    uint48 public constant SECONDS_IN_MONTH = 2629744;
+    uint48 public SECONDS_IN_MONTH = 2629744;
 
     /// @notice Timestamp of the block in which last NRT transaction was sealed.
     uint256 public lastReleaseTimestamp;
@@ -1322,21 +1321,18 @@ contract IncentiveManager is Ownable{
 
     IncentiveToken incentiveToken;
 
-    struct CreatorData {
-        uint256 incentiveScore;
-    }
-
-    bytes32 constant TYPE_HASH_CREATOR = keccak256("CreatorData(uint256 incentiveScore)"); 
-
-
-    mapping (uint => mapping(address => uint)) earnedRewards; 
+    mapping(address => mapping(uint => uint)) public earnedRewards; 
 
     constructor(address _poolAddress,address _token, address _admin){
-        currentMonth = 0;
+        currentMonth = 1;
         lastReleaseTimestamp = block.timestamp;
         incentiveToken = IncentiveToken(_token);
         poolManager = _poolAddress;
         admin = _admin;
+    }
+
+    function setTimeInMonths(uint48 _seconds) public onlyOwner{
+        SECONDS_IN_MONTH = uint48(_seconds);
     }
 
     function releaseRewardPool(uint _incentivefactor) onlyOwner external{
@@ -1346,9 +1342,13 @@ contract IncentiveManager is Ownable{
                 "MONTH_NOT_FINISHED"
             );
         // Make Reward Pool 
-        incentiveToken.mintReward(rewardPool.mul(90).div(100));
+        incentiveToken.mintReward(
+            rewardPool.mul(90).div(100)
+        );
         // Give some amount to pool;
-        incentiveToken.transfer(poolManager,rewardPool.mul(10).div(100));
+        incentiveToken.transfer(
+            poolManager,rewardPool.mul(10).div(100)
+        );
 
         incentivefactor = _incentivefactor;
         lastReleaseTimestamp = block.timestamp;
@@ -1356,10 +1356,20 @@ contract IncentiveManager is Ownable{
     }
 
     function claimIncentiveWithSig(uint256 _incentiveScore,bytes calldata _signature) public{
-        //TODO : let's read all data from lens smart contracts and build fromula instead of getting form backend 
-        address signer = verifySignature(Strings.toString(_incentiveScore),_signature);
+        require(
+            earnedRewards[msg.sender][currentMonth-1] == 0,
+            "ALREADY_CLAIMED"
+        );
+
+        //TODO : let's read all data from lens smart contracts
+        //  build formula in smart contract instead of getting form backend 
+        address signer = verifySignature(
+            Strings.toString(_incentiveScore),
+            _signature
+        );
         require(signer == admin, "Invalid Signature");
         incentiveToken.transfer(msg.sender,_incentiveScore);
+        earnedRewards[msg.sender][currentMonth-1] = _incentiveScore;
     }   
 
 
@@ -1459,7 +1469,5 @@ contract IncentiveManager is Ownable{
         // Perform the elliptic curve recover operation
         bytes32 check = keccak256(abi.encodePacked(header, message));
         return ecrecover(check, v, r, s);
-
     }
-
 }

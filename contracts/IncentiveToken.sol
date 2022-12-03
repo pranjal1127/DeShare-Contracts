@@ -18,7 +18,7 @@ modifier onlyManager() {
         _;
     }
     
-    constructor(address _incentiveManager) ERC20("IncentiveToken","IT") {
+    constructor() ERC20("IncentiveToken","IT") {
     }
 
     function mintReward(uint _amount) public onlyManager{
