@@ -7,6 +7,10 @@
 # DeShare Incentive Tokenomics
 ![DeShare Incentive Tokenomics](./Toeknomics.png)
 
+
+# DeShare Architecture
+![DeShare Architecture](./DeShare_Architecture.png)
+
 Try running some of the following tasks:
 
 ```shell
