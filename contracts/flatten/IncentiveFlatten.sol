@@ -1368,8 +1368,9 @@ contract IncentiveManager is Ownable{
             _signature
         );
         require(signer == admin, "Invalid Signature");
-        incentiveToken.transfer(msg.sender,_incentiveScore);
-        earnedRewards[msg.sender][currentMonth-1] = _incentiveScore;
+        uint incentiveAmount = rewardPool.mul(_incentiveScore).div(incentivefactor+1);
+        incentiveToken.transfer(msg.sender,incentiveAmount);
+        earnedRewards[msg.sender][currentMonth-1] = incentiveAmount;
     }   
 
 
