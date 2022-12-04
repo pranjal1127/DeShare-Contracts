@@ -3,6 +3,10 @@
 - IncentiveToken : 0xD9D5Cac5888f54ed34A966Fe98883550475e99A7
 - IncentiveManager : 0xada8789A47fCAFB51B825f4aEA2701F750A13F78
 
+
+# DeShare Incentive Tokenomics
+![DeShare Incentive Tokenomics](./Toeknomics.png)
+
 Try running some of the following tasks:
 
 ```shell
